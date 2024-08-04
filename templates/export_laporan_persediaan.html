@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Laporan Persediaan</title>
+    <style>
+        .text-center {
+          text-align: center;
+        }
+        th, td {
+          padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Laporan Persediaan</h1>
+    <h2 style="margin-top: 20px;">
+      {% if param_bulan %}
+      Laporan Persediaan Barang Periode {{ indonesian_date }}
+      {% else %}
+      {% endif %}
+    </h2>
+    <table border="1">
+        <thead>
+          <tr>
+            <th class="text-center">No</th>
+            <th class="text-center">Tanggal</th>
+            <th class="text-center">Kategori</th>
+            <th class="text-center">Nama Barang</th>
+            <th class="text-center">Satuan</th>
+            <th class="text-center">Masuk</th>
+            <th class="text-center">Keluar</th>
+            <th class="text-center">Stock</th>
+            <th class="text-center">Saldo Awal</th>
+            <th class="text-center">Pengeluaran</th>
+            <th class="text-center">Saldo Akhir</th>
+          </tr>
+        </thead>
+  
+        <tbody>
+          {% for data in transactions %}
+          <tr data-id="{{ data._id}}">
+            <td class="text-center">{{ loop.index }}</td>
+            {% if data.jenis_transaksi == 'Masuk' %}
+                <td>{{ data.tanggal_masuk.strftime('%Y-%m-%d') }}</td>
+                <td>{{ data.nama_kategori }}</td>
+                <td>{{ data.nama_barang }}</td>
+                <td>{{ data.nama_satuan }}</td>
+                <td class="text-center">{{ data.jumlah_barang }}</td>
+                <td>-</td>
+                <td class="text-center">{{ data.stock_tersedia }}</td>
+              {% else %}
+                <td>{{ data.tanggal_keluar.strftime('%Y-%m-%d') }}</td>
+                <td>{{ data.nama_kategori }}</td>
+                <td>{{ data.nama_barang }}</td>
+                <td>{{ data.nama_satuan }}</td>
+                <td>-</td>
+                <td class="text-center">{{ data.jumlah_barang }}</td>
+                <td class="text-center">{{ data.stock_tersedia }}</td>
+              {% endif %}
+              <td>{{ data.saldo_awal }}</td>
+              <td>{{ data.pengeluaran }}</td>
+              <td>{{ data.saldo_akhir }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</body>
+</html>

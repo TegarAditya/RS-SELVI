@@ -1,0 +1,229 @@
+{% extends "base_adminsistem.html" %}
+
+{% block title %}
+User - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminsistem_user.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div class="toggle">
+    <ion-icon name="menu-outline"></ion-icon>
+  </div>
+
+  <div class="">
+    <h1>Admin Sistem</h1>
+  </div>
+
+  <div class="notifications">
+    <ion-icon name=""></ion-icon>
+  </div>
+</div>
+
+
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DAFTAR USER</h1>
+      <div class="search">
+        <label>
+          <input type="text" id="searchInput" placeholder="Search here" />
+          <ion-icon name="search-outline"></ion-icon>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; margin-top: 25px; margin-bottom: 25px">
+      <a class="btn" href="/tambahuser" style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; text-decoration: none;">
+        <ion-icon name="add-outline"></ion-icon> Tambah
+      </a>
+    </div>
+    
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Nama</td>
+          <td>Role</td>
+          <td>Status</td>
+          <td>Action</td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            <button class="btn status-btn" data-id="{{ user._id }}" style="padding: 10px 15px; background: {{ 'green' if user.status == 'Aktif' else 'red' }}; color: var(--white); border-radius: 6px;">
+              {{ user.status }}
+            </button>
+          </td>
+          <td>
+            <a href="/user/detail/{{ user._id }}" style="padding: 10px 15px; background: #91c1f7; color: var(--white); border-radius: 6px;">Detail</a>
+            <button class="btn delete-btn" data-id="{{ user._id }}" style="padding: 10px 15px; background: #cf4a4a; color: var(--white); border-radius: 6px; margin-left: 10px;" data-toggle="modal" data-target="#deleteModal">
+              <ion-icon name="trash"></ion-icon>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    <div id="pagination" style="margin-top: 20px; text-align: center;">
+      <button id="prevPage" class="btn btn-outline-secondary">Previous</button>
+      <span id="pageNumbers" style="margin: 0 10px;"></span>
+      <button id="nextPage" class="btn btn-outline-secondary">Next</button>
+    </div>
+    
+  </div>
+</div>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Hapus User</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Apakah Anda yakin untuk menghapus item ini?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const statusButtons = document.querySelectorAll(".status-btn");
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+    let userIdToDelete = null;
+
+    statusButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const userId = this.getAttribute('data-id');
+        const newStatus = this.textContent.trim() === "Aktif" ? "Nonaktif" : "Aktif";
+        fetch(`/user/status/${userId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            this.textContent = newStatus;
+            this.style.background = newStatus === "Aktif" ? "green" : "red";
+          }
+        });
+      });
+    });
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        userIdToDelete = this.getAttribute('data-id');
+      });
+    });
+
+    document.getElementById('deleteConfirm').addEventListener('click', function () {
+      fetch(`/user/delete/${userIdToDelete}`, {
+        method: 'DELETE'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          location.reload();
+        }
+      });
+    });
+
+    let list = document.querySelectorAll(".navigation li");
+
+    function activeLink() {
+      list.forEach((item) => {
+        item.classList.remove("hovered");
+      });
+      this.classList.add("hovered");
+    }
+
+    list.forEach((item) => item.addEventListener("mouseover", activeLink));
+
+    let toggle = document.querySelector(".toggle");
+    let navigation = document.querySelector(".navigation");
+    let main = document.querySelector(".main");
+
+    toggle.onclick = function () {
+      navigation.classList.toggle("active");
+      main.classList.toggle("active");
+    };
+
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    const rows = document.querySelectorAll('#usersTable tbody tr');
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+    function displayRows() {
+      rows.forEach((row, index) => {
+        row.style.display = 'none';
+        if (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) {
+          row.style.display = '';
+        }
+      });
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const pageNumbers = document.getElementById('pageNumbers');
+      pageNumbers.innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+      document.getElementById('prevPage').style.display = currentPage === 1 ? 'none' : '';
+      document.getElementById('nextPage').style.display = currentPage === totalPages ? 'none' : '';
+    }
+
+    document.getElementById('prevPage').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        displayRows();
+      }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        displayRows();
+      }
+    });
+
+    displayRows();
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.addEventListener('keyup', function () {
+      const filter = this.value.toLowerCase();
+      rows.forEach((row) => {
+        const nameCell = row.querySelector('td:nth-child(2)');
+        const nameText = nameCell.textContent.toLowerCase();
+        row.style.display = nameText.includes(filter) ? '' : 'none';
+      });
+      updatePagination();
+    });
+
+  });
+</script>
+{% endblock %}

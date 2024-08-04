@@ -1,0 +1,97 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Laporan Barang Per Bulan -
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_kartustock.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h1>REPORT BARANG</h1>
+        </div>
+
+        <h3 style="margin-top: 20px;">Filter Report</h3>
+
+        <form action="" method="GET">
+            <div class="form-inline">
+                <label for="bulan" style="margin-right: 10px;">Filter Bulan:</label>
+                <input type="month" id="bulan" class="form-control" aria-label="Filter Bulan" style="
+                border-radius: 10px;
+                padding: 8px;
+                border: 1px solid var(--black2);
+            " name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}" />
+            </div>
+
+            <div class="form-inline" style="margin-top: 15px;">
+                <label for="selectBarang" style="margin-right: 10px;">Nama Barang:</label>
+                <select id="selectBarang" class="form-control" placeholder="Nama Barang" name="barang_id"
+                    aria-label="Nama Barang"
+                    style="border-radius: 10px; padding: 8px; border: 1px solid var(--black2); width: 1070px;">
+                    <option value="">Pilih Barang</option>
+                    {% for item in items %}
+                    <option {% if barang_id==item._id %} selected {% endif %} value="{{ item._id }}">{{ item.nama_barang
+                        }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button class="btn"
+                    style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; margin-left: 10px;">Submit</button>
+            </div>
+        </form>
+
+        {% if param_bulan %}
+        <!-- <div class="top-buttons" style="margin-top: 30px; display: inline;">
+            <form action="/laporan-barang-per-bulan/export/pdf" method="GET" style="float: left;">
+                <input type="hidden" name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}">
+                <input type="hidden" name="barang_id" value="{{ barang_id }}">
+                <button class="btn" style="background: #82E769; color: white; margin-right: 20px;" type="submit">
+                    <ion-icon name="document-text-outline"></ion-icon> PDF
+                </button>
+            </form>
+            <form action="/laporan-barang-per-bulan/export/xsl" method="GET" style="float: left;">
+                <input type="hidden" name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}">
+                <input type="hidden" name="barang_id" value="{{ barang_id }}">
+                <button class="btn" style="margin-right: 10px; background: #EBCC7B; color: white;">
+                    <ion-icon name="document-text-outline"></ion-icon> Excel
+                </button>
+            </form>
+        </div> -->
+
+        <h2 style="margin-top: 20px;">
+            {% if param_bulan %}
+            Laporan Persediaan Barang Periode {{ indonesian_date }}
+            {% else %}
+            {% endif %}
+        </h2>
+
+        <!-- Summary report -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Barang</th>
+                    <th>Total Barang Masuk</th>
+                    <th>Total Barang Keluar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ nama_barang }}</td>
+                    <td>{{ total_masuk }}</td>
+                    <td>{{ total_keluar }}</td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

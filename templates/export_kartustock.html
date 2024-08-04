@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Transaksi Barang</title>
+    <style>
+        .text-center {
+          text-align: center;
+        }
+        th, td {
+          padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ heading }}</h1>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Nama Barang</th>
+                <th>Masuk</th>
+                <th>Keluar</th>
+                <th>Sisa</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in transactions %}
+            <tr data-id="{{ data._id}}">
+                <td class="text-center">{{ loop.index }}</td>
+                {% if data.jenis_transaksi == 'Masuk' %}
+                  <td>{{ data.tanggal_masuk.strftime('%Y-%m-%d') }}</td>
+                  <td>{{ data.nama_barang }}</td>
+                  <td>{{ data.jumlah_barang }}</td>
+                  <td>-</td>
+                  <td>{{ data.stock_tersedia }}</td>
+                {% else %}
+                  <td>{{ data.tanggal_keluar.strftime('%Y-%m-%d') }}</td>
+                  <td>{{ data.nama_barang }}</td>
+                  <td>-</td>
+                  <td>{{ data.jumlah_barang }}</td>
+                  <td>{{ data.stock_tersedia }}</td>
+                  {% endif %}
+                  <td>{{ data.keterangan }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Stock Tersedia - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_stocktersedia.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DAFTAR STOCK TERSEDIA</h1>
+      <div class="search">
+        <label>
+          <input type="text" id="searchInput" placeholder="Search here" />
+          <ion-icon name="search-outline"></ion-icon>
+        </label>
+      </div>
+    </div>
+
+    <table style="margin-top: 30px;">
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Kategori</td>
+          <td>Nama Barang</td>
+          <td>Satuan</td>
+          <td>Jumlah</td>
+        </tr>
+      </thead>
+
+      <tbody id="body-table">
+        {% for data in items %}
+        <tr data-id="{{ data._id }}">
+          <td>{{ loop.index }}</td>
+          <td>{{ data.nama_kategori }}</td>
+          <td class="nama_barang">{{ data.nama_barang }}</td>
+          <td>{{ data.nama_satuan }}</td> 
+          <td>{{ data.stock_tersedia }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  
+  document.getElementById('searchInput').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#body-table tr');
+
+            rows.forEach(row => {
+                const categoryName = row.querySelector('.nama_barang').textContent.toLowerCase();
+                if (categoryName.includes(searchValue)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        });
+</script>
+{% endblock %}

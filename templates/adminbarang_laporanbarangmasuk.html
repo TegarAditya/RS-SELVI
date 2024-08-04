@@ -1,0 +1,83 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Laporan Persediaan -
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_laporanpersediaan.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h1>LAPORAN BARANG MASUK</h1>
+        </div>
+
+        <h3 style="margin-top: 20px;">Filter Laporan</h3>
+
+        <form action="" method="GET">
+            <div class="form-inline">
+                <label for="bulan" style="margin-right: 10px;">Filter Bulan:</label>
+                <input type="month" id="bulan" class="form-control" aria-label="Filter Bulan" style="
+                border-radius: 10px;
+                padding: 8px;
+                border: 1px solid var(--black2);
+            " name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}" />
+                <button class="btn"
+                    style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; margin-left: 10px;">Submit</button>
+            </div>
+        </form>
+
+        <div class="top-buttons" style="margin-top: 30px; display: inline;">
+            <form action="/laporan-barang-masuk/export/pdf" method="GET" style="float: left;">
+                <input type="hidden" name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}">
+                <button class="btn" style="background: #82E769; color: white; margin-right: 20px;" type="submit">
+                    <ion-icon name="document-text-outline"></ion-icon> PDF
+                </button>
+            </form>
+            <form action="/laporan-barang-masuk/export/xsl" method="GET" style="float: left;">
+                <input type="hidden" name="bulan"
+                    value="{% if param_bulan is not none and param_bulan != '' %}{{ param_bulan }}{% endif %}">
+                <button class="btn" style="margin-right: 10px; background: #EBCC7B; color: white;">
+                    <ion-icon name="document-text-outline"></ion-icon> Excel
+                </button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>No</td>
+                    <td>Tanggal</td>
+                    <td>Kategori</td>
+                    <td>Nama Barang</td>
+                    <td>Satuan</td>
+                    <td>Jumlah Barang</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for data in transactions %}
+                <tr data-id="{{ data._id}}">
+                    <td>{{ loop.index }}</td>
+                    <td>{{ data.tanggal_masuk.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ data.nama_kategori }}</td>
+                    <td>{{ data.nama_barang }}</td>
+                    <td>{{ data.nama_satuan }}</td>
+                    <td>{{ data.jumlah_barang }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

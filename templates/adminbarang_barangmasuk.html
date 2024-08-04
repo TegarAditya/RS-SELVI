@@ -1,0 +1,432 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Barang Masuk - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_barangmasuk.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DAFTAR BARANG MASUK</h1>
+      <div class="search">
+        <label>
+          <input type="text" id="searchInput" placeholder="Search here" />
+          <ion-icon name="search-outline"></ion-icon>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; margin-top: 25px; margin-bottom: 25px">
+      <button
+        class="btn"
+        data-toggle="modal"
+        data-target="#addModal"
+        style="
+          padding: 10px 20px;
+          background: #272c52;
+          color: var(--white);
+          border-radius: 6px;
+        "
+      >
+        <ion-icon name="add-outline"></ion-icon> Tambah
+      </button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+            <td>No</td>
+            <td>Tanggal</td>
+            <td>Kategori</td>
+            <td>Nama Barang</td>
+            <td>Satuan</td>
+            <td>Harga</td>
+            <td>Jumlah</td>
+            <td>Stock</td>
+            <td>Ditambahkan Oleh</td>
+            <td>Action</td>
+        </tr>
+    </thead>
+
+      <tbody id="body-table">
+        {% for data in incoming_transactions %}
+        <tr data-id="{{ data._id }}">
+          <td>{{ loop.index }}</td>
+          <td class="tanggal_masuk">{{ data.tanggal_masuk.strftime('%Y-%m-%d') }}</td>
+          <td>{{ data.nama_kategori }}</td>
+          <td>
+            <label class="barang_id" style="display: none;">{{ data.barang_id }}</label>
+            <label class="nama_barang">{{ data.nama_barang }}</label>
+          </td>
+          <td>{{ data.nama_satuan }}</td>
+          <td>
+            <label class="harga_barang" style="display: none;">{{ data.harga_barang }}</label>
+            {{ data.harga_barang | rupiah }}
+          </td>
+          <td class="jumlah_barang">{{ data.jumlah_barang }}</td>
+          <td>{{ data.stock_tersedia }}</td>
+          <td>{{ data.added_by }}</td>
+          <td>
+            <div style="display: flex">
+              <button
+                class="btn edit-btn"
+                data-toggle="modal"
+                data-target="#editModal"
+                style="
+                  padding: 10px 15px;
+                  background: #ebcc7b;
+                  color: var(--white);
+                  border-radius: 6px;
+                "
+              >
+                <ion-icon name="create"></ion-icon>
+              </button>
+              <button
+                class="btn delete-btn"
+                data-toggle="modal"
+                data-target="#deleteModal"
+                style="
+                  padding: 10px 15px;
+                  background: #cf4a4a;
+                  color: var(--white);
+                  border-radius: 6px;
+                  margin-left: 10px;
+                "
+              >
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- =========== Modals =========== -->
+    <!-- Add Modal -->
+    <div
+      class="modal fade"
+      id="addModal"
+      tabindex="-1"
+      aria-labelledby="addModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addModalLabel">Tambah Barang Masuk</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="addForm">
+              <div class="form-group">
+                <label for="tanggal_masuk">Tanggal</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="tanggal_masuk"
+                  placeholder="Masukkan Tanggal"
+                  value="{{ today }}"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="barang_id">Nama Barang</label>
+                <select class="form-control" id="barang_id" required>
+                  {% for item in items %}
+                  <option value="{{ item._id }}">{{ item.nama_barang }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="harga_barang">Harga</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="harga_barang"
+                  placeholder="Masukkan Harga Barang"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="jumlah_barang">Jumlah</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="jumlah_barang"
+                  placeholder="Masukkan Jumlah Barang"
+                  required
+                  min="1"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="addConfirm">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div
+      class="modal fade"
+      id="editModal"
+      tabindex="-1"
+      aria-labelledby="editModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Barang Masuk</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="editForm">
+              <div class="form-group">
+                <label for="edit_tanggal_masuk">Tanggal</label>
+                <input type="date" class="form-control" id="edit_tanggal_masuk" required />
+              </div>
+              <div class="form-group">
+                <label for="edit_barang_id">Nama Barang</label>
+                <select class="form-control" id="edit_barang_id" required>
+                  {% for item in items %}
+                  <option value="{{ item._id }}">{{ item.nama_barang }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="edit_harga_barang">Harga</label>
+                <input type="number" class="form-control" id="edit_harga_barang" required />
+              </div>
+              <div class="form-group">
+                <label for="edit_jumlah_barang">Jumlah</label>
+                <input type="number" class="form-control" id="edit_jumlah_barang" required min="1" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="editConfirm">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div
+      class="modal fade"
+      id="deleteModal"
+      tabindex="-1"
+      aria-labelledby="deleteModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Hapus Barang</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Apakah Anda yakin untuk menghapus item ini?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-danger" id="deleteConfirm">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const searchText = this.value.toLowerCase();
+    document.querySelectorAll('#body-table tr').forEach(function(row) {
+      const cells = row.querySelectorAll('td');
+      let match = false;
+      cells.forEach(function(cell) {
+        if (cell.textContent.toLowerCase().includes(searchText)) {
+          match = true;
+        }
+      });
+      row.style.display = match ? '' : 'none';
+    });
+  });
+
+  document.getElementById('addConfirm').addEventListener('click', function() {
+    const tanggal_masuk = document.getElementById('tanggal_masuk').value;
+    const barang_id = document.getElementById('barang_id').value;
+    const harga_barang = document.getElementById('harga_barang').value;
+    const jumlah_barang = document.getElementById('jumlah_barang').value;
+
+    // Validate jumlah_barang to be at least 1
+    if (jumlah_barang < 1) {
+      alert('Jumlah barang harus minimal 1.');
+      return;
+    }
+
+    fetch('/barangmasuk/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        tanggal_masuk: tanggal_masuk, 
+        barang_id: barang_id, 
+        harga_barang: harga_barang, 
+        jumlah_barang: jumlah_barang 
+      })
+    }).then(response => response.json())
+      .then(data => {
+        if (data.message === 'Incoming item added successfully!') {
+          location.reload();
+        } else {
+          alert(data.message);
+        }
+      });
+  });
+
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      const id = row.dataset.id;
+      const tanggal_masuk = row.querySelector('.tanggal_masuk').textContent;
+      const barang_id = row.querySelector('.barang_id').textContent;
+      const harga_barang = row.querySelector('.harga_barang').textContent;
+      const jumlah_barang = row.querySelector('.jumlah_barang').textContent;
+
+      // Set the form values
+      document.getElementById('edit_tanggal_masuk').value = tanggal_masuk;
+      document.getElementById('edit_barang_id').value = barang_id;
+      document.getElementById('edit_harga_barang').value = harga_barang;
+      document.getElementById('edit_jumlah_barang').value = jumlah_barang;
+
+      // Show the modal
+      $('#editModal').modal('show');
+
+      // Set the form action
+      document.getElementById('editConfirm').onclick = function() {
+        const newTanggalMasuk = document.getElementById('edit_tanggal_masuk').value;
+        const newNamaBarang = document.getElementById('edit_barang_id').value;
+        const newHargaBarang = document.getElementById('edit_harga_barang').value;
+        const newJumlahBarang = document.getElementById('edit_jumlah_barang').value;
+        const oldJumlahBarang = jumlah_barang;
+
+        // Validate newJumlahBarang to be at least 1
+        if (newJumlahBarang < 1) {
+          alert('Jumlah barang harus minimal 1.');
+          return;
+        }
+
+        fetch(`/barangmasuk/edit/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tanggal_masuk: newTanggalMasuk,
+                barang_id: newNamaBarang,
+                harga_barang: newHargaBarang,
+                jumlah_barang: newJumlahBarang,
+                old_jumlah_barang: oldJumlahBarang
+            })
+        }).then(response => {
+            if (response.status === 403) {
+                alert("Tidak dapat diedit! Anda bukan pengguna yang menambahkan barang ini.");
+            } else if (response.status === 200) {
+                return response.json();
+            }
+        }).then(data => {
+            if (data.message === 'Incoming item updated successfully!') {
+                location.reload();
+            }
+        });
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(button => {
+  button.addEventListener('click', function() {
+    const row = this.closest('tr');
+    const id = row.dataset.id;
+
+    document.getElementById('deleteConfirm').onclick = function() {
+      fetch(`/barangmasuk/delete/${id}`, {
+        method: 'DELETE'
+      }).then(response => {
+        if (response.status === 403) {
+          alert("Tidak dapat dihapus! Anda bukan pengguna yang menambahkan barang ini.");
+        } else if (response.status === 200) {
+          return response.json();
+        }
+      }).then(data => {
+        if (data.message === 'Incoming item deleted successfully!') {
+          // Tutup modal dan refresh halaman
+          $('#deleteModal').modal('hide'); // Menutup modal
+          location.reload(); // Memuat ulang halaman
+        }
+      });
+    }
+  });
+});
+
+</script>
+
+{% endblock %}

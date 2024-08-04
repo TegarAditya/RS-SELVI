@@ -1,0 +1,123 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Dashboard - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_dashboard.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="cardBox">
+  <div class="card">
+    <div >
+      <div class="numbers">{{ total_categories }}</div>
+      <div class="cardName">Total Kategori</div>
+    </div>
+    <div class="iconBx">
+      <ion-icon name="layers-outline"></ion-icon>
+    </div>
+  </div>
+
+  <div class="card">
+    <div>
+      <div class="numbers">{{ total_items }}</div>
+      <div class="cardName">Total Data Barang</div>
+    </div>
+    <div class="iconBx">
+      <ion-icon name="bag-handle-outline"></ion-icon>
+    </div>
+  </div>
+
+  <div class="card">
+    <div>
+      <div class="numbers">{{ total_in_items }}</div>
+      <div class="cardName">Total Barang Masuk</div>
+    </div>
+    <div class="iconBx">
+      <ion-icon name="arrow-undo-outline"></ion-icon>
+    </div>
+  </div>
+
+  <div class="card">
+    <div>
+      <div class="numbers">{{ total_out_items }}</div>
+      <div class="cardName">Total Barang Keluar</div>
+    </div>
+    <div class="iconBx">
+      <ion-icon name="arrow-redo-outline"></ion-icon>
+    </div>
+  </div>
+</div>
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>SALDO</h1>
+    </div>
+
+  <form action="" method="POST">
+  <div class="form-inline">
+    <label for="bulan" style="margin-right: 10px;">Bulan:</label>
+    <input
+      type="month"
+      id="bulan"
+      class="form-control"
+      aria-label="Bulan"
+      style="
+        font-size: large;
+        border-radius: 10px;
+        padding: 8px;
+        border: 1px solid var(--black2);
+      "
+      name="bulan"
+    />
+    <label for="jumlahSaldo" style="margin-left: 20px; margin-right: 10px;">Jumlah Saldo:</label>
+    <input
+      type="number"
+      id="saldo_awal"
+      class="form-control"
+      aria-label="Jumlah Saldo"
+      style="
+        font-size: large;
+        border-radius: 10px;
+        padding: 8px;
+        border: 1px solid var(--black2);
+      "
+      name="saldo_awal"
+    />
+    <button class="btn" style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; margin-left: 10px;">Submit</button>
+  </div>
+  </form>
+
+    <table>
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Bulan</td>
+          <td>Tahun</td>
+          <td>Saldo Awal</td>
+          <td>Pengeluaran</td>
+          <td>Saldo Akhir</td>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for data in recaps %}
+        <tr data-id="{{ data._id }}">
+          <td>{{ loop.index }}</td>
+          <td>{{ data.bulan | bulan_indo }}</td>
+          <td>{{ data.tahun }}</td>
+          <td>{% if data.saldo_awal is not none %} {{ data.saldo_awal | rupiah }} {% else %} - {% endif %}</td>
+          <td>{% if data.pengeluaran is defined %} {{ data.pengeluaran | rupiah }} {% else %} - {% endif %}</td>
+          <td>{% if data.saldo_akhir is not none %} {{ data.saldo_akhir | rupiah }} {% else %} - {% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

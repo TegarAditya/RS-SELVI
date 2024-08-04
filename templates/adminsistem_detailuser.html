@@ -1,0 +1,100 @@
+{% extends "base_adminsistem.html" %}
+
+{% block title %}
+User - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminsistem_tambahuser.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+  .password-container {
+      display: flex;
+      align-items: center;
+  }
+  .password-container .form-control {
+      flex: 1;
+  }
+  .password-container button {
+      margin-left: 10px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div class="toggle">
+    <ion-icon name="menu-outline"></ion-icon>
+  </div>
+  <div class="">
+    <h1>Admin Sistem</h1>
+  </div>
+  <div class="notifications">
+    <ion-icon name=""></ion-icon>
+  </div>
+</div>
+
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DETAIL USER</h1>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <form id="addUserForm">
+        <div class="form-group row">
+          <label for="name" class="col-sm-2 col-form-label">Nama</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" value="{{ user.name }}" disabled>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="username" class="col-sm-2 col-form-label">Username</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="password" class="col-sm-2 col-form-label">Password</label>
+          <div class="col-sm-10 password-container">
+            <!-- <input type="password" class="form-control" id="password" value="{{ user.password }}" disabled>
+            <button type="button" class="btn btn-secondary" id="togglePassword">Show</button> -->
+
+            {% if user and user.password_not_hash %}
+            <input type="password" class="form-control" id="password" value="{{ user.password_not_hash }}" disabled>
+            {% else %}
+                <input type="password" class="form-control" id="password" value="{{ user.password }}" disabled>
+            {% endif %}
+            <button type="button" class="btn btn-secondary" id="togglePassword">Show</button>
+        </div>
+        </div>
+        <div class="form-group row">
+          <label for="role" class="col-sm-2 col-form-label">Role</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="role" value="{{ user.role }}" disabled>
+          </div>
+        </div>
+        <div class="text-center">
+          <a href="/user" style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px;" class="btn">Kembali</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.getElementById('togglePassword').addEventListener('click', function () {
+      const passwordField = document.getElementById('password');
+      const passwordFieldType = passwordField.getAttribute('type');
+      if (passwordFieldType === 'password') {
+          passwordField.setAttribute('type', 'text');
+          this.textContent = 'Hide';
+      } else {
+          passwordField.setAttribute('type', 'password');
+          this.textContent = 'Show';
+      }
+  });
+</script>
+{% endblock %}

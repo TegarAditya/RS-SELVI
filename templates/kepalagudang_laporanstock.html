@@ -1,0 +1,77 @@
+{% extends "base_kepalagudang.html" %}
+
+{% block title %}
+Laporan Stock - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_laporanstock.css">
+{% endblock %}
+
+{% block content %}
+<!-- ================ Order Details List ================= -->
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>LAPORAN STOCK</h1>
+    </div>
+
+    <!-- <h3 style="margin-top: 20px;">Filter Laporan</h3>
+      
+    <form action="" method="GET">
+      <div class="form-inline" style="margin-top: 15px;">
+        <label for="selectBarang" style="margin-right: 10px;">Jenis Laporan:</label>
+        <select id="selectBarang" class="form-control" placeholder="Nama Barang" name="jenis_laporan"
+        aria-label="Nama Barang" style="border-radius: 10px; padding: 8px; border: 1px solid var(--black2); width: 920px;">
+            <option {% if jenis_laporan == 'available' %} selected {% endif %} value="available">Stock Tersedia</option>
+            <option {% if jenis_laporan == 'minimum' %} selected {% endif %} value="minimum">Stock Minimum</option>
+        </select>
+        <button class="btn" style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; margin-left: 10px;">Submit</button>
+      </div>
+    </form> -->
+
+    <div class="top-buttons" style="margin-top: 30px; display: inline;">
+      <form action="/laporan-stock/export/pdf" method="GET" style="float: left;">
+        <input type="hidden" name="jenis_laporan" value="{{ jenis_laporan }}">
+        <button class="btn" style="background: #82E769; color: white; margin-right: 20px;" type="submit">
+          <ion-icon name="document-text-outline"></ion-icon> PDF
+        </button>
+      </form>
+      <form action="/laporan-stock/export/xsl" method="GET" style="float: left;">
+        <input type="hidden" name="jenis_laporan" value="{{ jenis_laporan }}">
+        <button class="btn" style="margin-right: 10px; background: #EBCC7B; color: white;">
+          <ion-icon name="document-text-outline"></ion-icon> Excel
+        </button>
+      </form>
+    </div>
+      
+    <table>
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Kategori</td>
+          <td>Nama Barang</td>
+          <td>Satuan</td>
+          <td>Jumlah</td>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for data in items %}
+        <tr data-id="{{ data._id}}">
+          <td>{{ loop.index }}</td>
+          <td>{{ data.nama_kategori }}</td>
+          <td>{{ data.nama_barang }}</td>
+          <td>{{ data.nama_satuan }}</td>
+          <td>{{ data.stock_tersedia }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

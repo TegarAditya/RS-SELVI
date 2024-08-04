@@ -1,0 +1,233 @@
+{% extends "base_adminbarang.html" %}
+
+{% block title %}
+Kategori - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_kategori.css">
+{% endblock %}
+
+{% block content %}
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DAFTAR KATEGORI</h1>
+      <div class="search">
+        <label>
+          <input type="text" id="searchInput" placeholder="Search here" />
+          <ion-icon name="search-outline"></ion-icon>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; margin-top: 25px; margin-bottom: 25px">
+      <button
+        class="btn"
+        data-toggle="modal"
+        data-target="#addModal"
+        style="
+          padding: 10px 20px;
+          background: #272c52;
+          color: var(--white);
+          border-radius: 6px;
+        "
+      >
+        <ion-icon name="add-outline"></ion-icon> Tambah
+      </button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Kategori</td>
+          <td>Action</td>
+        </tr>
+      </thead>
+
+      <tbody id="categoryTable">
+        {% for data in categories %}
+        <tr data-id="{{ data._id }}">
+          <td>{{ loop.index }}</td>
+          <td class="category-name">{{ data.nama_kategori }}</td>
+          <td>
+            <div style="display: flex">
+              <button
+                class="btn edit-btn" data-toggle="modal" data-target="#editModal" style="padding: 10px 15px; background: #ebcc7b; color: var(--white); border-radius: 6px;">
+                <ion-icon name="create"></ion-icon>
+              </button>
+              <button
+                class="btn delete-btn" data-toggle="modal" data-target="#deleteModal" style="padding: 10px 15px; background: #cf4a4a; color: var(--white); border-radius: 6px; margin-left: 10px;">
+                <ion-icon name="trash"></ion-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- =========== Modals =========== -->
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addModalLabel">Tambah Kategori</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="addForm">
+              <div class="form-group">
+                <label for="kategoriName">Nama Kategori</label>
+                <input type="text" class="form-control" id="kategoriName" placeholder="Masukkan Nama Kategori">
+                <small id="kategoriError" class="form-text text-danger" style="display:none;"></small>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="addConfirm">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Kategori</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="editForm">
+              <div class="form-group">
+                <label for="editKategoriName">Nama Kategori</label>
+                <input type="text" class="form-control" id="editKategoriName">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="editConfirm">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Hapus Kategori</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Apakah Anda yakin untuk menghapus item ini?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#categoryTable tr');
+
+    rows.forEach(row => {
+      const categoryName = row.querySelector('.category-name').textContent.toLowerCase();
+      if (categoryName.includes(searchValue)) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+  });
+
+  document.getElementById('addConfirm').addEventListener('click', function() {
+    const nama_kategori = document.getElementById('kategoriName').value;
+    const kategoriError = document.getElementById('kategoriError');
+    fetch('/kategori/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ category: nama_kategori })
+    }).then(response => response.json())
+      .then(data => {
+        if (data.message === 'Category added successfully!') {
+          location.reload();
+        } else {
+          kategoriError.textContent = data.message;
+          kategoriError.style.display = 'block';
+        }
+      }).catch(error => {
+        console.error('Error:', error);
+      });
+  });
+  
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      const id = row.dataset.id;
+      const categoryName = row.querySelector('.category-name').textContent;
+      document.getElementById('editKategoriName').value = categoryName;
+      document.getElementById('editConfirm').onclick = function() {
+        const newCategoryName = document.getElementById('editKategoriName').value;
+        fetch(`/kategori/edit/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ category: newCategoryName })
+        }).then(response => response.json())
+          .then(data => {
+            console.log(data);
+            if (data.message === 'Category updated successfully!') {
+              location.reload();
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      const id = row.dataset.id;
+      document.getElementById('deleteConfirm').onclick = function() {
+        fetch(`/kategori/delete/${id}`, {
+          method: 'DELETE'
+        }).then(response => response.json())
+          .then(data => {
+            if (data.message === 'Category deleted successfully!') {
+              location.reload();
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+    });
+  });
+</script>
+{% endblock %}

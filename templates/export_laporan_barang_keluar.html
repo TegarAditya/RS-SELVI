@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Laporan Barang Keluar</title>
+    <style>
+        .text-center {
+            text-align: center;
+        }
+
+        th,
+        td {
+            padding-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Data Laporan Barang Keluar</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th class="text-center">No</th>
+                <th class="text-center">Tanggal Penerimaan</th>
+                <th class="text-center">Tanggal Pengajuan</th>
+                <th class="text-center">Kategori</th>
+                <th class="text-center">Nama Barang</th>
+                <th class="text-center">Satuan</th>
+                <th class="text-center">Jumlah Barang</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for data in transactions %}
+            <tr data-id="{{ data._id}}">
+                <td class="text-center">{{ loop.index }}</td>
+                <td>{{ data.tanggal_penerimaan }}</td>
+                <td>{{ data.tanggal_pengajuan }}</td>
+                <td>{{ data.kategori.nama_kategori if data.kategori and
+                    data.kategori.nama_kategori
+                    else '-' }}</td>
+                <td>{{ data.nama_barang }}</td>
+                <td>{{ data.satuan }}</td>
+                <td>{{ data.jumlah_diterima }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>

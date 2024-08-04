@@ -1,0 +1,143 @@
+{% extends "base_kepalagudang.html" %}
+
+{% block title %}
+Laporan Barang - 
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminbarang_laporanbarang.css">
+{% endblock %}
+
+{% block content %}
+<!-- ================ Order Details List ================= -->
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>LAPORAN BARANG</h1>
+    </div>
+
+    <h3 style="margin-top: 20px;">Filter Laporan</h3>
+      
+    <form action="" method="GET">  
+      <div class="form-inline">
+        <label for="startDate" style="margin-right: 10px;">Mulai Tanggal:</label>
+        <input
+          type="date"
+          id="startDate"
+          class="form-control"
+          placeholder="Mulai Tanggal"
+          aria-label="Mulai Tanggal"
+          style="
+            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid var(--black2);
+          "
+          name="start_date"
+          value="{% if start_date is not none and start_date != '' %}{{ start_date.strftime('%Y-%m-%d') }}{% endif %}"
+        />
+        <label for="endDate" style="margin-left: 20px; margin-right: 10px;">Sampai Tanggal:</label>
+        <input
+          type="date"
+          id="endDate"
+          class="form-control"
+          placeholder="Sampai Tanggal"
+          aria-label="Sampai Tanggal"
+          style="
+            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid var(--black2);
+          "
+          name="end_date"
+          value="{% if end_date is not none and end_date != '' %}{{ end_date.strftime('%Y-%m-%d') }}{% endif %}"
+        />
+      </div>
+  
+      <div class="form-inline" style="margin-top: 15px;">
+        <label for="selectBarang" style="margin-right: 10px;">Jenis Laporan:</label>
+        <select id="selectBarang" class="form-control" placeholder="Nama Barang" name="jenis_laporan"
+        aria-label="Nama Barang" style="border-radius: 10px; padding: 8px; border: 1px solid var(--black2); width: 1070px;">
+            <option {% if jenis_laporan == 'in' %} selected {% endif %} value="in">Barang Masuk</option>
+            <option {% if jenis_laporan == 'out' %} selected {% endif %} value="out">Barang Keluar</option>
+        </select>
+        <button class="btn" style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px; margin-left: 10px;">Submit</button>
+      </div>
+    </form>
+
+    <div class="top-buttons" style="margin-top: 30px; display: inline;">
+      <form action="/laporan-barang/export/pdf" method="GET" style="float: left;">
+        <input type="hidden" name="start_date" value="{% if start_date is not none and start_date != '' %}{{ start_date.strftime('%Y-%m-%d') }}{% endif %}">
+        <input type="hidden" name="end_date" value="{% if end_date is not none and end_date != '' %}{{ end_date.strftime('%Y-%m-%d') }}{% endif %}">
+        <input type="hidden" name="jenis_laporan" value="{{ jenis_laporan }}">
+        <button class="btn" style="background: #82E769; color: white; margin-right: 20px;" type="submit">
+          <ion-icon name="document-text-outline"></ion-icon> PDF
+        </button>
+      </form>
+      <form action="/laporan-barang/export/xsl" method="GET" style="float: left;">
+        <input type="hidden" name="start_date" value="{% if start_date is not none and start_date != '' %}{{ start_date.strftime('%Y-%m-%d') }}{% endif %}">
+        <input type="hidden" name="end_date" value="{% if end_date is not none and end_date != '' %}{{ end_date.strftime('%Y-%m-%d') }}{% endif %}">
+        <input type="hidden" name="jenis_laporan" value="{{ jenis_laporan }}">
+        <button class="btn" style="margin-right: 10px; background: #EBCC7B; color: white;">
+          <ion-icon name="document-text-outline"></ion-icon> Excel
+        </button>
+      </form>
+    </div>
+
+    <h2 style="margin-top: 20px;">
+      Laporan Barang {{ 'Masuk' if jenis_laporan == 'in' else 'Keluar' }} periode
+      {% if start_date is not none and start_date != '' %}
+        {{ start_date.strftime('%d-%m-%Y') }}
+      {% else %}
+        -
+      {% endif %}
+      sampai
+      {% if end_date is not none and end_date != '' %}
+        {{ end_date.strftime('%d-%m-%Y') }}
+      {% else %}
+        -
+      {% endif %}
+    </h2> 
+      
+    <table>
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Tanggal</td>
+          <td>Kategori</td>
+          <td>Nama Barang</td>
+          <td>Satuan</td>
+          <td>Jumlah</td>
+          <td>Harga</td>
+          <td>Keterangan</td>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for data in transactions %}
+        <tr data-id="{{ data._id}}">
+          <td>{{ loop.index }}</td>
+          <td>{%if jenis_laporan == 'in' or jenis_laporan is none %}{{ data.tanggal_masuk.strftime('%Y-%m-%d') }} {%
+            elif jenis_laporan == 'out' %} {{ data.tanggal_keluar.strftime('%Y-%m-%d') }}{% endif %}</td>
+          <td>{{ data.nama_kategori }}</td>
+          <td>{{ data.nama_barang }}</td>
+          <td>
+            {% if data.satuan %}
+                {{ data.satuan }}
+            {% else %}
+                {{ data.nama_satuan }}
+            {% endif %}
+        </td>        
+          <td>{{ data.jumlah_barang }}</td>
+          <td>{%if jenis_laporan == 'in' or jenis_laporan is none %} {{ data.harga_barang | rupiah }} {% else %} - {%
+            endif %}</td>
+          <td>{{ data.keterangan }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

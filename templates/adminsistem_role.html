@@ -1,0 +1,285 @@
+{% extends "base_adminsistem.html" %}
+
+{% block title %}
+Role -
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/adminsistem_role.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div class="toggle">
+    <ion-icon name="menu-outline"></ion-icon>
+  </div>
+
+  <div class="">
+    <h1>Admin Sistem</h1>
+  </div>
+
+  <div class="notifications">
+    <ion-icon name=""></ion-icon>
+  </div>
+</div>
+
+<div class="details">
+  <div class="recentOrders">
+    <div class="cardHeader">
+      <h1>DAFTAR ROLE</h1>
+      <div class="search">
+        <label>
+          <input type="text" id="searchInput" placeholder="Search here" />
+          <ion-icon name="search-outline"></ion-icon>
+        </label>
+      </div>
+    </div>
+
+    <div style="display: flex; margin-top: 25px; margin-bottom: 25px">
+      <button class="btn" data-toggle="modal" data-target="#addModal"
+        style="padding: 10px 20px; background: #272c52; color: var(--white); border-radius: 6px;">
+        <ion-icon name="add-outline"></ion-icon> Tambah
+      </button>
+    </div>
+
+    <table id="rolesTable">
+      <thead>
+        <tr>
+          <td>No</td>
+          <td>Role</td>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for role in roles %}
+        <tr data-id="{{ role._id }}">
+          <td>{{ loop.index }}</td>
+          <td class="role-name">{{ role.name | clean }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div id="pagination" style="margin-top: 20px; text-align: center;">
+      <button id="prevPage" class="btn btn-outline-secondary">Previous</button>
+      <span id="pageNumbers" style="margin: 0 10px;"></span>
+      <button id="nextPage" class="btn btn-outline-secondary">Next</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="addForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addModalLabel">Tambah Role</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="roleName">Nama Role</label>
+            <input type="text" class="form-control" id="roleName" placeholder="Masukkan Nama Role">
+            <small id="roleNameError" class="form-text text-danger" style="display:none;"></small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="addConfirm">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Role</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editRoleName">Nama Role</label>
+            <input type="text" class="form-control" id="editRoleName">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="editConfirm">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Hapus Role</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Apakah Anda yakin untuk menghapus item ini?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  const rowsPerPage = 10;
+  let currentPage = 1;
+  const rows = document.querySelectorAll('#rolesTable tbody tr');
+  const totalRows = rows.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  function displayRows() {
+    rows.forEach((row, index) => {
+      row.style.display = 'none';
+      if (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) {
+        row.style.display = '';
+      }
+    });
+    updatePagination();
+  }
+
+  function updatePagination() {
+    const pageNumbers = document.getElementById('pageNumbers');
+    pageNumbers.innerHTML = `Page ${currentPage} of ${totalPages}`;
+
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+  }
+
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayRows();
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      displayRows();
+    }
+  });
+
+  displayRows();
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('addConfirm').addEventListener('click', function () {
+      const roleName = document.getElementById('roleName').value.trim().toLowerCase().replace(/\s+/g, '');
+      const roleNameError = document.getElementById('roleNameError');
+
+      // Validasi nama role
+      if (!roleName) {
+        roleNameError.textContent = 'Nama Role harus diisi.';
+        roleNameError.style.display = 'block';
+        return;
+      }
+
+      // Kirim data ke server
+      fetch('/role/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ roleName })
+      }).then(response => response.json())
+        .then(data => {
+          if (data.message === 'Role added successfully!') {
+            location.reload(); // Refresh halaman setelah berhasil menambahkan role
+          } else {
+            roleNameError.textContent = data.message;
+            roleNameError.style.display = 'block';
+          }
+        });
+    });
+  });
+
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const row = this.closest('tr');
+      const id = row.dataset.id;
+      const roleName = row.querySelector('.role-name').textContent;
+      document.getElementById('editRoleName').value = roleName;
+      document.getElementById('editConfirm').onclick = function () {
+        const newRoleName = document.getElementById('editRoleName').value;
+        fetch(`/role/edit/${id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ roleName: newRoleName })
+        }).then(response => response.json())
+          .then(data => {
+            if (data.message === 'Role updated successfully!') {
+              location.reload();
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const row = this.closest('tr');
+      const id = row.dataset.id;
+      document.getElementById('deleteConfirm').onclick = function () {
+        fetch(`/role/delete/${id}`, {
+          method: 'DELETE'
+        }).then(response => response.json())
+          .then(data => {
+            if (data.message === 'Role deleted successfully!') {
+              location.reload();
+            } else {
+              alert(data.message);
+            }
+          });
+      }
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('keyup', function () {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#rolesTable tbody tr');
+
+    rows.forEach(row => {
+      const roleName = row.querySelector('.role-name').textContent.toLowerCase();
+      if (roleName.includes(filter)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+
+  document.getElementById('roleName').addEventListener('input', function (event) {
+    // Remove all spaces and whitespace characters
+    event.target.value = event.target.value.replace(/\s/g, '');
+  });
+</script>
+{% endblock %}
