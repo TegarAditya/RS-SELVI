@@ -2854,7 +2854,7 @@ def laporanbarang_export_excel():
             else:
                 item['kategori'] = "Kebersihan"
 
-        items_dict = {item['nama_barang']: item['satuan'] for item in items2}
+        items_dict = {item['nama_barang']: item['nama_barang'] for item in items2}
         kategori_dict = {item['nama_barang']: item['kategori'] for item in items2}
 
         for item in barang_keluar_tbl:

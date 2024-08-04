@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire application code
 COPY . .
 
+# Set the user to run the application
+USER root
+
 # Create a directory for writable files and set permissions
 RUN chmod -R 777 /app
 
