@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire application code
 COPY . .
 
+# Create a directory for writable files and set permissions
+RUN chmod -R 777 /app
+
 # Expose the port your application will run on
 EXPOSE 5001
 
