@@ -1674,10 +1674,10 @@ def laporanbarangperbulan():
 
     items2 = list(db.items.find())
     categories2 = list(db.categories.find())
-    satuan2 = list(db.satuan.find())  # Fetch satuan data
+    satuan2 = list(db.satuan.find())
     
     categories_dict = {category['_id']: category for category in categories2}
-    satuans_dict = {satuan['_id']: satuan['nama_satuan'] for satuan in satuan2}  # Map satuan data
+    satuans_dict = {satuan['_id']: satuan['nama_satuan'] for satuan in satuan2}
     for item in items2:
         kategori_id = item.get('kategori_id')
         if kategori_id in categories_dict:
@@ -1691,16 +1691,11 @@ def laporanbarangperbulan():
         else:
             item['satuan'] = "Box"
 
-    # items_dict = {item['nama_barang']: item['satuan'] for item in items2}
     satuan_dict = {item['nama_barang']: item['satuan'] for item in items2}
     kategori_dict = {item['nama_barang']: item['kategori'] for item in items2}
 
     for item in barang_keluar_tbl:
         nama_barang = item.get('nama_barang')
-        # if nama_barang in items_dict:
-        #     item['satuan'] = items_dict[nama_barang]
-        # else:
-        #     item['satuan'] = 'pcs'
         if nama_barang in satuan_dict:
             item['satuan'] = satuan_dict[nama_barang]
         else:
@@ -1711,9 +1706,6 @@ def laporanbarangperbulan():
         else:
             item['kategori'] = "Kebersihan"
             
-    selected_item = None
-    nama_barang = None
-
     outgoing_transactions = barang_keluar_tbl
     
     for transaction in incoming_transactions:
@@ -1730,7 +1722,7 @@ def laporanbarangperbulan():
     
     items_cache = {}
     categories_cache = {}
-    satuan_cache = {}  # Cache satuan data
+    satuan_cache = {}
     
     for transaction in incoming_transactions:
         barang_id = transaction.get('barang_id')
@@ -1813,48 +1805,16 @@ def laporanbarangperbulan():
     all_transactions = incoming_transactions + outgoing_transactions
     all_transactions.sort(key=lambda x: x['date'])
 
-    stock_dict = {}
-    out_stock_dict = {}
+    total_masuk_dict = {}
+    total_keluar_dict = {}
+
     for trans in incoming_transactions:
         nama_barang = trans['nama_barang']
-        stock_dict[nama_barang] = {
-            'stock_tersedia': trans['stock_tersedia'],
-            'date': trans['date']
-        }
+        total_masuk_dict[nama_barang] = total_masuk_dict.get(nama_barang, 0) + trans['jumlah_barang']
 
-    already_added = {}
     for trans in outgoing_transactions:
         nama_barang = trans['nama_barang']
-        if nama_barang in stock_dict:
-            for in_trans in reversed(incoming_transactions):
-                if in_trans['nama_barang'] == nama_barang and in_trans['date'] <= trans['date']:
-                    stock_dict[nama_barang]['stock_tersedia'] = in_trans['stock_tersedia']
-                    break
-
-            for out_trans in reversed(outgoing_transactions):
-                if out_trans['nama_barang'] == nama_barang and out_trans['date'] <= trans['date'] and out_trans['stock_tersedia']:
-                    stock_dict[nama_barang]['stock_tersedia'] = out_trans['stock_tersedia']
-                    break
-
-            stock_dict[nama_barang]['stock_tersedia'] -= trans['jumlah_diterima']
-            trans['stock_tersedia'] = stock_dict[nama_barang]['stock_tersedia']
-            
-            if trans['stock_tersedia'] < 0:
-                for in_trans in reversed(incoming_transactions):
-                    if in_trans['nama_barang'] == nama_barang and in_trans['date'] <= trans['date']:
-                        stock_dict[nama_barang]['stock_tersedia'] = in_trans['stock_tersedia']
-                        break
-
-                stock_dict[nama_barang]['stock_tersedia'] -= trans['jumlah_diterima']
-                trans['stock_tersedia'] = stock_dict[nama_barang]['stock_tersedia']
-
-            stock_dict[nama_barang]['date'] = trans['date']
-
-    all_transactions.sort(key=lambda x: x.get('tanggal_masuk', x.get('tanggal_keluar')))
-
-    total_masuk = sum(t['jumlah_barang'] for t in all_transactions if t['jenis_transaksi'] == 'Masuk')
-    total_keluar = sum(t['jumlah_diterima'] for t in all_transactions if t['jenis_transaksi'] == 'Keluar')
-    nama_barang = all_transactions[0]['nama_barang'] if all_transactions else 'Tidak Tersedia'
+        total_keluar_dict[nama_barang] = total_keluar_dict.get(nama_barang, 0) + trans['jumlah_diterima']
 
     indonesian_date = ""
     if param_bulan:
@@ -1882,9 +1842,8 @@ def laporanbarangperbulan():
     # Filter items untuk hanya menampilkan barang yang ada dalam nama_barang_set
     items = list(db.items.find({'nama_barang': {'$in': list(nama_barang_set)}}))
 
-    print(all_transactions)
+    return render_template('adminbarang_laporanbarangperbulan.html', indonesian_date=indonesian_date, bulan=bulan, param_bulan=param_bulan, total_masuk_dict=total_masuk_dict, total_keluar_dict=total_keluar_dict, transactions=all_transactions, items=items, barang_id=barang_id, start_date=start_date, end_date=end_date, selected_item=selected_item)
 
-    return render_template('adminbarang_laporanbarangperbulan.html', indonesian_date=indonesian_date, bulan=bulan, param_bulan=param_bulan, nama_barang=nama_barang, total_masuk=total_masuk, total_keluar=total_keluar, transactions=all_transactions, items=items, barang_id=barang_id, start_date=start_date, end_date=end_date, selected_item=selected_item)
 
 @app.route('/laporan-barang-per-bulan/export/pdf', methods=['GET'])
 @login_required(roles=['adminbarang'])
